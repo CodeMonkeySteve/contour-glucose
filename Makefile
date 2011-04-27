@@ -2,7 +2,7 @@ CC = gcc
 LD = ld
 CFLAGS = -Wall -O2 -g
 
-GLUCOSE_OBJS = main.o hiddev.o
+GLUCOSE_OBJS = main.o hiddev.o utils.o
 
 ALL_OBJS = $(GLUCOSE_OBJS)
 ALL_DEBS = $(shell echo " "$(ALL_OBJS) | sed -e "s,[^ ]*\.a,,g" -e	\

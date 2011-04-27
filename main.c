@@ -8,8 +8,8 @@
 #include <time.h>
 
 #include "hiddev.h"
+#include "utils.h"
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 struct msg {
 	int direction;
@@ -20,42 +20,6 @@ enum direction {
 	IN = 666,
 	OUT,
 };
-
-static int is_printable(const unsigned char c)
-{
-	return c >= 0x20 && c < 0x80;
-}
-
-static int datalen(const unsigned char *data)
-{
-	int i, len;
-
-	for (i = 0, len = 0; i < 64; i++)
-		if (data[i])
-			len = i;
-
-	return len + 1;
-}
-
-static void print_hex(const unsigned char *data, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		printf("0x%02x ", data[i]);
-
-	printf("\n");
-}
-
-static void print_ascii(const unsigned char *data, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		printf("%c", is_printable(data[i]) ? data[i] : '.');
-
-	printf("\n");
-}
 
 int send_msg(const struct msg *msg, int fd, int usage_code)
 {
