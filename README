@@ -1,0 +1,13 @@
+Before you try this software:
+
+WARNING
+
+This is a very experimental piece of a software. It might damage your
+glucose meter or make it unreliable.
+
+The communication protocol this software uses to communicate to Bayer
+Contour USB glucose meter is reverse engineered. The software has gone
+through a very little of testing and I have no idea what it might do
+for your meter. There is no approval of any sort by Bayer for using
+this software. You use this software at your own risk. You have been
+warned!
