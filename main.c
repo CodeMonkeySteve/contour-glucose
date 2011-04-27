@@ -195,7 +195,7 @@ int send_msg(const struct msg *msg, int fd, int usage_code)
 		exit(1);
 	}
 
-	usleep(1000 * 1000);
+	usleep(30 * 1000);
 	printf("Sending: ");
 	print_hex(msg->data + 1, datalen(msg->data) - 1);
 	print_ascii(msg->data + 1, datalen(msg->data) - 1);
@@ -262,15 +262,18 @@ int send_pattern(int fd, int uc, unsigned char byte1, unsigned char byte2)
 	struct msg msg;
 	msg.direction = OUT;
 
+	usleep(100 * 1000);
 	SET_FIRST_BYTE(0x01);
 	SET_BYTES(0x04);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(250 * 1000);
 	SET_BYTE(1, 0x15);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
@@ -281,6 +284,7 @@ int send_pattern(int fd, int uc, unsigned char byte1, unsigned char byte2)
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, byte2);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
@@ -306,6 +310,7 @@ int communicate(int fd, int uc)
 
 	SET_BYTE(1, 0x15);
 	for (i = 0; i < 6; i++) {
+		usleep(100 * 1000);
 		send_msg(&msg, fd, uc);
 		read_msgs(fd);
 	}
@@ -314,6 +319,7 @@ int communicate(int fd, int uc)
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
@@ -334,6 +340,7 @@ int communicate(int fd, int uc)
 	send_pattern(fd, uc, 'R', 'X');
 	send_pattern(fd, uc, 'W', 'K');
 
+	usleep(100 * 1000);
 	SET_FIRST_BYTE(0x08);
 	SET_BYTES('O');
 	SET_BYTES('b');
@@ -346,60 +353,74 @@ int communicate(int fd, int uc)
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(410 * 1000);
 	SET_FIRST_BYTE(0x02);
 	SET_BYTES('R');
 	SET_BYTES('|');
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 'Y');
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 'W');
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 'K');
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 'C');
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
 	send_pattern(fd, uc, 'R', 'Z');
 
+	usleep(100 * 1000);
 	SET_FIRST_BYTE(0x01);
 	SET_BYTES(0x04);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x15);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x04);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	SET_BYTE(1, 0x06);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	usleep(100 * 1000);
 	do {
 		send_msg(&msg, fd, uc);
 		read_and_verify(&in, fd);
