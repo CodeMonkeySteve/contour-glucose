@@ -2,6 +2,8 @@
 
 #include "utils.h"
 
+int trace_level;
+
 int datalen(const unsigned char *data)
 {
 	int i, len;

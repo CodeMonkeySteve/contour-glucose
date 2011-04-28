@@ -26,14 +26,16 @@ int send_msg(const struct msg *msg, int fd, int usage_code)
 	int ret;
 
 	if (msg->direction != OUT) {
-		printf("Message direction is not OUT\n");
+		trace(0, "Message direction is not OUT\n");
 		exit(1);
 	}
 
 	usleep(30 * 1000);
-	printf("Sending: ");
-	print_hex(msg->data + 1, datalen(msg->data) - 1);
-	print_ascii(msg->data + 1, datalen(msg->data) - 1);
+	trace(1, "Sending: ");
+	if (trace_level >= 3)
+		print_hex(msg->data + 1, datalen(msg->data) - 1);
+	if (trace_level >= 2)
+		print_ascii(msg->data + 1, datalen(msg->data) - 1);
 
 	ret = hiddev_write(msg->data, fd, usage_code);
 	if (ret)
@@ -57,9 +59,11 @@ int read_and_verify(struct msg *msg, int fd)
 	}
 
 	memcpy(msg->data, buf, sizeof(buf));
-	printf("Got data %d: ", datalen(buf));
-//	print_hex(buf, datalen(buf));
-	print_ascii(buf, datalen(buf));
+	trace(2, "Got data %d: ", datalen(buf));
+	if (trace_level >= 3)
+		print_hex(buf, datalen(buf));
+	if (trace_level >= 2)
+		print_ascii(buf, datalen(buf));
 err:
 	return 0;
 }
@@ -255,10 +259,12 @@ int communicate(int fd, int uc)
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
+	trace(0, "Glucose readings:\n");
 	usleep(100 * 1000);
 	do {
 		send_msg(&msg, fd, uc);
 		read_and_verify(&in, fd);
+		print_ascii(in.data, datalen(in.data));
 	} while (datalen(in.data) > 45);
 
 	return 0;
