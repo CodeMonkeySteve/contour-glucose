@@ -9,6 +9,7 @@
 
 #include "hiddev.h"
 #include "utils.h"
+#include "options.h"
 
 
 struct msg {
@@ -273,8 +274,16 @@ int communicate(int fd, int uc)
 int main(int argc, char *argv[])
 {
 	int fd, usage_code;
+	struct user_options opts;
 
-	fd = hiddev_open(argv[1], &usage_code);
+	read_args(argc, argv, &opts);
+
+	if (opts.usbdev == NULL) {
+		trace(0, "USB dev name needs to be give with '-d' parameter\n");
+		return 1;
+	}
+
+	fd = hiddev_open(opts.usbdev, &usage_code);
 	if (fd < 0)
 		return 1;
 
