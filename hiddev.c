@@ -149,7 +149,9 @@ err_close:
 	close(fd);
 err:
 	error = errno;
-	printf("Error opening device %s: %s\n", device_path, strerror(error));
+	if (error)
+		printf("Error opening device %s: %s\n", device_path,
+			strerror(error));
 	return ret;
 }
 
