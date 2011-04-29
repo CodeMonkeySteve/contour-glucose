@@ -14,6 +14,8 @@
 #define CONTOUR_USB_VENDOR_ID	0x1a79
 #define CONTOUR_USB_PRODUCT_ID	0x6002
 
+#define MAX_MSGS	103
+
 struct msg {
 	int direction;
 	unsigned char data[64];
@@ -27,10 +29,15 @@ enum direction {
 int send_msg(const struct msg *msg, int fd, int usage_code)
 {
 	int ret;
+	static int msg_count;
 
 	if (msg->direction != OUT) {
 		trace(0, "Message direction is not OUT\n");
 		exit(1);
+	}
+	if (trace_level < 1 && msg_count <= MAX_MSGS) {
+		trace(0, "\r%d%%", msg_count * 100 / MAX_MSGS);
+		fflush(stdout);
 	}
 
 	usleep(30 * 1000);
@@ -44,6 +51,7 @@ int send_msg(const struct msg *msg, int fd, int usage_code)
 	if (ret)
 		exit(1);
 
+	msg_count++;
 	return 0;
 }
 
@@ -139,6 +147,7 @@ int communicate(int fd, int uc)
 	int i, j;
 	struct msg msg, in;
 	msg.direction = OUT;
+	trace(0, "Initializing..\n");
 
 	read_msgs(fd);
 	SET_FIRST_BYTE(0x01);
@@ -262,7 +271,7 @@ int communicate(int fd, int uc)
 	send_msg(&msg, fd, uc);
 	read_msgs(fd);
 
-	trace(0, "Glucose readings:\n");
+	trace(0, "\nGlucose readings:\n");
 	usleep(100 * 1000);
 	do {
 		send_msg(&msg, fd, uc);
