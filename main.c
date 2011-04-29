@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "options.h"
 
+#define CONTOUR_USB_VENDOR_ID	0x1a79
+#define CONTOUR_USB_PRODUCT_ID	0x6002
 
 struct msg {
 	int direction;
@@ -277,13 +279,13 @@ int main(int argc, char *argv[])
 	struct user_options opts;
 
 	read_args(argc, argv, &opts);
+	trace_level = opts.trace_level;
 
-	if (opts.usbdev == NULL) {
-		trace(0, "USB dev name needs to be give with '-d' parameter\n");
-		return 1;
-	}
-
-	fd = hiddev_open(opts.usbdev, &usage_code);
+	if (opts.usbdev == NULL)
+		fd = hiddev_open_by_id(CONTOUR_USB_PRODUCT_ID,
+				CONTOUR_USB_VENDOR_ID, &usage_code);
+	else
+		fd = hiddev_open(opts.usbdev, &usage_code);
 	if (fd < 0)
 		return 1;
 
