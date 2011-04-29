@@ -139,6 +139,7 @@ static int _hiddev_open(const char *device_path, int *usage_code,
 			vendor_id == device_info.vendor)
 			return fd;
 		trace(3, "Vendor and product IDs don't match\n");
+		ret = -1;
 		goto err_close;
 	}
 
