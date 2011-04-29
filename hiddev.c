@@ -8,8 +8,9 @@
 #include <fcntl.h>
 
 #include "hiddev.h"
+#include "utils.h"
 
-#define PRINT_FIELD(field) printf(#field ": %04x\n", field)
+#define PRINT_FIELD(level, field) trace(level, #field ": %04x\n", field)
 
 int hiddev_read(unsigned char *data, int bufsize, int fd)
 {
@@ -104,9 +105,9 @@ int hiddev_open(const char *device_path, int *usage_code)
 	if (ret < 0)
 		goto err;
 
-	PRINT_FIELD(rinfo.report_type);
-	PRINT_FIELD(rinfo.report_id);
-	PRINT_FIELD(rinfo.num_fields);
+	PRINT_FIELD(3, rinfo.report_type);
+	PRINT_FIELD(3, rinfo.report_id);
+	PRINT_FIELD(3, rinfo.num_fields);
 
 	*usage_code = get_usagecode(fd);
 
@@ -118,14 +119,14 @@ int hiddev_open(const char *device_path, int *usage_code)
 	if (ret < 0)
 		goto err;
 
-	PRINT_FIELD(device_info.bustype);
-	PRINT_FIELD(device_info.busnum);
-	PRINT_FIELD(device_info.devnum);
-	PRINT_FIELD(device_info.ifnum);
-	PRINT_FIELD(device_info.vendor);
-	PRINT_FIELD(device_info.product);
-	PRINT_FIELD(device_info.version);
-	PRINT_FIELD(device_info.num_applications);
+	PRINT_FIELD(3, device_info.bustype);
+	PRINT_FIELD(3, device_info.busnum);
+	PRINT_FIELD(3, device_info.devnum);
+	PRINT_FIELD(3, device_info.ifnum);
+	PRINT_FIELD(3, device_info.vendor);
+	PRINT_FIELD(3, device_info.product);
+	PRINT_FIELD(3, device_info.version);
+	PRINT_FIELD(3, device_info.num_applications);
 
 	return fd;
 
