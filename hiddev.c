@@ -2,15 +2,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <linux/hiddev.h>
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
+#include <dirent.h>
 
 #include "hiddev.h"
 #include "utils.h"
 
 #define PRINT_FIELD(level, field) trace(level, #field ": %04x\n", field)
+
+#define HIDDEV_PATH "/dev/usb/"
 
 int hiddev_read(unsigned char *data, int bufsize, int fd)
 {
@@ -87,23 +91,25 @@ static int get_usagecode(int fd)
 	return uref.usage_code;
 }
 
-int hiddev_open(const char *device_path, int *usage_code)
+static int _hiddev_open(const char *device_path, int *usage_code,
+			int vendor_id, int product_id)
 {
 	struct hiddev_devinfo device_info;
 	struct hiddev_report_info rinfo;
 	int ret, error;
 	int fd;
+
+	trace(3, "Opening device %s\n", device_path);
 	fd = ret = open(device_path, O_RDWR);
 
 	if (fd < 0)
 		goto err;
 
-
 	rinfo.report_type = HID_REPORT_TYPE_OUTPUT;
 	rinfo.report_id = HID_REPORT_ID_FIRST;
 	ret = ioctl(fd, HIDIOCGREPORTINFO, &rinfo);
 	if (ret < 0)
-		goto err;
+		goto err_close;
 
 	PRINT_FIELD(3, rinfo.report_type);
 	PRINT_FIELD(3, rinfo.report_id);
@@ -112,12 +118,12 @@ int hiddev_open(const char *device_path, int *usage_code)
 	*usage_code = get_usagecode(fd);
 
 	if (*usage_code < 0)
-		return -8;
+		goto err_close;
 
 	ret = ioctl(fd, HIDIOCGDEVINFO, &device_info);
 
 	if (ret < 0)
-		goto err;
+		goto err_close;
 
 	PRINT_FIELD(3, device_info.bustype);
 	PRINT_FIELD(3, device_info.busnum);
@@ -128,11 +134,65 @@ int hiddev_open(const char *device_path, int *usage_code)
 	PRINT_FIELD(3, device_info.version);
 	PRINT_FIELD(3, device_info.num_applications);
 
+	if (product_id && vendor_id) {
+		if (product_id == device_info.product &&
+			vendor_id == device_info.vendor)
+			return fd;
+		trace(3, "Vendor and product IDs don't match\n");
+		goto err_close;
+	}
+
 	return fd;
 
+err_close:
+	close(fd);
 err:
 	error = errno;
 	printf("Error opening device %s: %s\n", device_path, strerror(error));
 	return ret;
 }
 
+int hiddev_open(const char *device_path, int *usage_code)
+{
+	return _hiddev_open(device_path, usage_code, 0, 0);
+}
+
+int hiddev_open_by_id(int vendor_id, int product_id, int *usage_code)
+{
+	struct dirent *dirent;
+	DIR *dir;
+	int error, fd;
+	char path[256];
+
+	dir = opendir(HIDDEV_PATH);
+	if (dir == NULL) {
+		error = errno;
+		printf("Failed to open directory %s: %s\n", HIDDEV_PATH,
+			strerror(error));
+		return -error;
+	}
+
+	while ((dirent = readdir(dir))) {
+		if (strncmp(dirent->d_name, "hiddev", sizeof("hiddev") - 1))
+			continue;
+
+		path[0] = 0;
+		strncat(path, HIDDEV_PATH, sizeof(path) - 1);
+		strncat(path, dirent->d_name, sizeof(path) - 1);
+
+		fd = _hiddev_open(path, usage_code, product_id, vendor_id);
+		if (fd < 0)
+			continue;
+		return fd;
+	}
+
+	if (errno) {
+		error = errno;
+		trace(0, "Error reading directory %s: %s\n", HIDDEV_PATH,
+			strerror(error));
+		return -error;
+	}
+
+	trace(0, "Canno't find any mathing hiddev devices\n");
+	return -1;
+}
