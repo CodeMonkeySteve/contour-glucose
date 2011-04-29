@@ -187,7 +187,7 @@ int hiddev_open_by_id(int vendor_id, int product_id, int *usage_code)
 		strncat(path, HIDDEV_PATH, sizeof(path) - 1);
 		strncat(path, dirent->d_name, sizeof(path) - 1);
 
-		fd = _hiddev_open(path, usage_code, product_id, vendor_id);
+		fd = _hiddev_open(path, usage_code, vendor_id, product_id);
 		if (fd < 0)
 			continue;
 		return fd;

@@ -282,8 +282,8 @@ int main(int argc, char *argv[])
 	trace_level = opts.trace_level;
 
 	if (opts.usbdev == NULL)
-		fd = hiddev_open_by_id(CONTOUR_USB_PRODUCT_ID,
-				CONTOUR_USB_VENDOR_ID, &usage_code);
+		fd = hiddev_open_by_id(CONTOUR_USB_VENDOR_ID,
+				CONTOUR_USB_PRODUCT_ID, &usage_code);
 	else
 		fd = hiddev_open(opts.usbdev, &usage_code);
 	if (fd < 0)
