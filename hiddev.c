@@ -175,7 +175,11 @@ int hiddev_open_by_id(int vendor_id, int product_id, int *usage_code)
 		return -error;
 	}
 
-	while ((dirent = readdir(dir))) {
+	while (1) {
+		dirent = readdir(dir);
+		if (dirent == NULL)
+			break;
+
 		if (strncmp(dirent->d_name, "hiddev", sizeof("hiddev") - 1))
 			continue;
 
