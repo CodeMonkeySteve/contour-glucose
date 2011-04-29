@@ -1,5 +1,6 @@
 #include <getopt.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "options.h"
 
@@ -8,7 +9,7 @@ int read_args(int argc, char *argv[], struct user_options *opts)
         int option_index = 0, c;
         static struct option long_options[] = {
                 { .val = 'd', .name = "device", .has_arg = 1, },
-                { .val = 'v', .name = "verbose", },
+                { .val = 'v', .name = "verbose", .has_arg = 2},
         };
         char short_options[] = "d:v";
 
@@ -26,7 +27,10 @@ int read_args(int argc, char *argv[], struct user_options *opts)
 			opts->usbdev = optarg;
 			break;
 		case 'v':
-			opts->trace_level++;
+			if (optarg)
+				opts->trace_level = atoi(optarg);
+			else
+				opts->trace_level++;
                 case '?':
 			return -1;
                 }
