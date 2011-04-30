@@ -170,7 +170,7 @@ int hiddev_open_by_id(int vendor_id, int product_id, int *usage_code)
 	dir = opendir(HIDDEV_PATH);
 	if (dir == NULL) {
 		error = errno;
-		printf("Failed to open directory %s: %s\n", HIDDEV_PATH,
+		trace(4, "Failed to open directory %s: %s\n", HIDDEV_PATH,
 			strerror(error));
 		return -error;
 	}

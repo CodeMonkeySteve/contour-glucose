@@ -282,6 +282,27 @@ int communicate(int fd, int uc)
 	return 0;
 }
 
+int wait_for_device(int vendor, int product, int *usage_code)
+{
+	int fd;
+
+	fd = hiddev_open_by_id(vendor, product, usage_code);
+
+	if (fd > 0)
+		return fd;
+
+	trace(0,
+	       "No suitable device found. Please plug in your glucose meter\n");
+	do {
+		usleep(500 * 1000);
+		fd = hiddev_open_by_id(vendor, product, usage_code);
+	} while(fd < 0);
+
+	usleep(2000 * 1000);
+
+	return fd;
+}
+
 int main(int argc, char *argv[])
 {
 	int fd, usage_code;
@@ -291,7 +312,7 @@ int main(int argc, char *argv[])
 	trace_level = opts.trace_level;
 
 	if (opts.usbdev == NULL)
-		fd = hiddev_open_by_id(CONTOUR_USB_VENDOR_ID,
+		fd = wait_for_device(CONTOUR_USB_VENDOR_ID,
 				CONTOUR_USB_PRODUCT_ID, &usage_code);
 	else
 		fd = hiddev_open(opts.usbdev, &usage_code);
