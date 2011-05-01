@@ -136,12 +136,11 @@ static int send_pattern(int fd, int uc, unsigned char byte1, unsigned char byte2
 	return 0;
 }
 
-int communicate(int fd, int uc)
+int contour_initialize(int fd, int uc)
 {
 	int i, j;
-	struct msg msg, in;
+	struct msg msg;
 	msg.direction = OUT;
-	trace(0, "Initializing..\n");
 
 	read_msgs(fd);
 	SET_FIRST_BYTE(0x01);
@@ -265,15 +264,25 @@ int communicate(int fd, int uc)
 	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
-	trace(0, "\nGlucose readings:\n");
 	usleep(100 * 1000);
-	do {
-		send_msg(&msg, fd, uc);
-		read_and_verify(&in, fd);
-		print_ascii(in.data, datalen(in.data));
-	} while (datalen(in.data) > 45);
 
+	trace(0, "\n");
 	return 0;
+}
+
+int contour_read_entry(int fd, int uc, struct msg *in)
+{
+	struct msg msg;
+	int j;
+
+	msg.direction = OUT;
+	SET_FIRST_BYTE(0x01);
+	SET_BYTE(1, 0x06);
+
+	send_msg(&msg, fd, uc);
+	read_and_verify(in, fd);
+
+	return datalen(in->data);
 }
 
 int wait_for_device(int vendor, int product, int *usage_code)

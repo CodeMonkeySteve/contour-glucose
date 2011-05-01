@@ -11,8 +11,9 @@
 
 int main(int argc, char *argv[])
 {
-	int fd, usage_code;
+	int fd, usage_code, ret;
 	struct user_options opts;
+	struct msg msg;
 
 	read_args(argc, argv, &opts);
 	trace_level = opts.trace_level;
@@ -25,7 +26,17 @@ int main(int argc, char *argv[])
 	if (fd < 0)
 		return 1;
 
-	communicate(fd, usage_code);
+	trace(0, "Initializing\n");
+	contour_initialize(fd, usage_code);
+
+	trace(0, "Done! Reading data\n");
+	while (1) {
+		ret = contour_read_entry(fd, usage_code, &msg);
+		print_ascii(msg.data, ret);
+
+		if (ret < 45)
+			break;
+	}
 
 	return 0;
 }
