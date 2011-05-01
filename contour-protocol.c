@@ -15,15 +15,9 @@
 static int send_msg(const struct msg *msg, int fd, int usage_code)
 {
 	int ret;
-	static int msg_count;
-
 	if (msg->direction != OUT) {
 		trace(0, "Message direction is not OUT\n");
 		exit(1);
-	}
-	if (trace_level < 1 && msg_count <= MAX_MSGS) {
-		trace(0, "\r%d%%", msg_count * 100 / MAX_MSGS);
-		fflush(stdout);
 	}
 
 	usleep(30 * 1000);
@@ -37,8 +31,22 @@ static int send_msg(const struct msg *msg, int fd, int usage_code)
 	if (ret)
 		exit(1);
 
-	msg_count++;
 	return 0;
+}
+
+static int send_msg_with_proggress_note(const struct msg *msg, int fd,
+					int usage_code)
+{
+	static int msg_count;
+
+	if (trace_level < 1 && msg_count <= MAX_MSGS) {
+		trace(0, "\r%d%%", msg_count * 100 / MAX_MSGS);
+		fflush(stdout);
+	}
+
+	msg_count++;
+
+	return send_msg(msg, fd, usage_code);
 }
 
 static int read_and_verify(struct msg *msg, int fd)
@@ -101,28 +109,28 @@ static int send_pattern(int fd, int uc, unsigned char byte1, unsigned char byte2
 	usleep(100 * 1000);
 	SET_FIRST_BYTE(0x01);
 	SET_BYTES(0x04);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(250 * 1000);
 	SET_BYTE(1, 0x15);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	SET_FIRST_BYTE(0x02);
 	SET_BYTES(byte1);
 	SET_BYTES('|');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, byte2);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	return 0;
@@ -138,27 +146,27 @@ int communicate(int fd, int uc)
 	read_msgs(fd);
 	SET_FIRST_BYTE(0x01);
 	SET_BYTES(0x04);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x06);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	SET_BYTE(1, 0x15);
 	for (i = 0; i < 6; i++) {
 		usleep(100 * 1000);
-		send_msg(&msg, fd, uc);
+		send_msg_with_proggress_note(&msg, fd, uc);
 		read_msgs(fd);
 	}
 	usleep(1000 * 1000);
 	read_msgs(fd);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	send_pattern(fd, uc, 'R', 'A');
@@ -187,34 +195,34 @@ int communicate(int fd, int uc)
 	SET_BYTES('c');
 	SET_BYTES('3');
 	SET_BYTES('|');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(410 * 1000);
 	SET_FIRST_BYTE(0x02);
 	SET_BYTES('R');
 	SET_BYTES('|');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 'Y');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 'W');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 'K');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 'C');
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	send_pattern(fd, uc, 'R', 'Z');
@@ -222,39 +230,39 @@ int communicate(int fd, int uc)
 	usleep(100 * 1000);
 	SET_FIRST_BYTE(0x01);
 	SET_BYTES(0x04);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x15);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x05);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x04);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
 	SET_BYTE(1, 0x06);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	usleep(100 * 1000);
-	send_msg(&msg, fd, uc);
+	send_msg_with_proggress_note(&msg, fd, uc);
 	read_msgs(fd);
 
 	trace(0, "\nGlucose readings:\n");
