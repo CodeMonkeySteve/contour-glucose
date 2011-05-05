@@ -9,9 +9,10 @@ int read_args(int argc, char *argv[], struct user_options *opts)
         int option_index = 0, c;
         static struct option long_options[] = {
                 { .val = 'd', .name = "device", .has_arg = 1, },
-                { .val = 'v', .name = "verbose", .has_arg = 2},
+                { .val = 'v', .name = "verbose", .has_arg = 2 },
+		{ .val = 'o', .name = "output", .has_arg = 1 },
         };
-        char short_options[] = "d:v";
+        char short_options[] = "d:v:o:";
 
 	memset(opts, 0, sizeof(*opts));
 
@@ -31,6 +32,9 @@ int read_args(int argc, char *argv[], struct user_options *opts)
 				opts->trace_level = atoi(optarg);
 			else
 				opts->trace_level++;
+		case 'o':
+			opts->output_path = optarg;
+			break;
                 case '?':
 			return -1;
                 }

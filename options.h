@@ -3,6 +3,7 @@
 
 struct user_options {
 	char *usbdev;
+	char *output_path;
 	int trace_level;
 };
 

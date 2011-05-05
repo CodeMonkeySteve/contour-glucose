@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string.h>
+#include <errno.h>
 
 #include "hiddev.h"
 #include "utils.h"
@@ -11,12 +15,26 @@
 
 int main(int argc, char *argv[])
 {
-	int fd, usage_code, ret;
+	FILE *outf;
 	struct user_options opts;
 	struct msg msg;
+	int fd, usage_code, ret, error;
 
 	read_args(argc, argv, &opts);
+
 	trace_level = opts.trace_level;
+
+	if (opts.output_path) {
+		outf = fopen(opts.output_path, "w");
+		if (outf == NULL) {
+			error = errno;
+			trace(0, "Failed to open output file %s: %s\n",
+				opts.output_path, strerror(error));
+			return 1;
+		}
+	} else {
+		outf = stdout;
+	}
 
 	if (opts.usbdev == NULL)
 		fd = wait_for_device(CONTOUR_USB_VENDOR_ID,
@@ -32,10 +50,12 @@ int main(int argc, char *argv[])
 	trace(0, "Done! Reading data\n");
 	while (1) {
 		ret = contour_read_entry(fd, usage_code, &msg);
-		print_ascii(msg.data, ret);
+		sanitize_ascii(msg.data, ret);
 
 		if (ret < 45)
 			break;
+
+		fprintf(outf, "%s\n", msg.data);
 	}
 
 	return 0;
