@@ -34,3 +34,12 @@ void print_ascii(const unsigned char *data, int len)
 
 	printf("\n");
 }
+
+void sanitize_ascii(unsigned char *data, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		data[i] = is_printable(data[i]) ? data[i] : '.';
+	data[i] = 0;
+}

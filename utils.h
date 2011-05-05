@@ -21,5 +21,6 @@ extern int trace_level;
 int datalen(const unsigned char *data);
 void print_hex(const unsigned char *data, int len);
 void print_ascii(const unsigned char *data, int len);
+void sanitize_ascii(unsigned char *data, int len);
 
 #endif
