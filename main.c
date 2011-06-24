@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 	struct user_options opts;
 	struct msg msg;
 	int fd, usage_code, ret, error;
+	int entries = 0;
 
 	read_args(argc, argv, &opts);
 
@@ -56,7 +57,14 @@ int main(int argc, char *argv[])
 			break;
 
 		fprintf(outf, "%s\n", msg.data);
+
+		entries++;
+		if (outf != stdout) {
+			trace(0, "\r%d", entries);
+			fflush(stdout);
+		}
 	}
+	trace(0, "\n");
 
 	return 0;
 }
