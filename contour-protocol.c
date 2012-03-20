@@ -83,6 +83,7 @@ static int read_and_verify(struct msg *msg, int fd)
 	}
 
 	memcpy(msg->data, buf, sizeof(buf));
+	memset(&msg->data[sizeof(buf)], 0, sizeof(msg->data)-sizeof(buf));
 	trace(2, "Got data %d: ", datalen(buf));
 	if (trace_level >= 3)
 		print_hex(buf, datalen(buf));
@@ -297,10 +298,9 @@ int contour_read_entry(int fd, int uc, struct msg *in)
 	msg.direction = OUT;
 	SET_FIRST_BYTE(0x01);
 	SET_BYTE(1, 0x06);
-
 	send_msg(&msg, fd, uc);
-	read_and_verify(in, fd);
 
+	read_and_verify(in, fd);
 	return datalen(in->data);
 }
 

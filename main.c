@@ -32,10 +32,12 @@
 #include "options.h"
 #include "contour-protocol.h"
 
+char *token(char **str, char sep);
+
 int main(int argc, char *argv[])
 {
 	FILE *outf;
-	struct user_options opts;
+	struct user_options opts = { .output_format = CLEAN };
 	struct msg msg;
 	int fd, usage_code, ret, error;
 	int entries = 0;
@@ -63,19 +65,45 @@ int main(int argc, char *argv[])
 		fd = hiddev_open(opts.usbdev, &usage_code);
 	if (fd < 0)
 		return 1;
-
 	trace(0, "Initializing\n");
 	contour_initialize(fd, usage_code);
 
 	trace(0, "Done! Reading data\n");
+	if ( opts.output_format == CSV )
+		fprintf(outf, "#,Time,Type,Value,Unit,Before meal,After meal,Stress,Sick,Dont feel right,Activity,Control test\n");
+
 	while (1) {
 		ret = contour_read_entry(fd, usage_code, &msg);
-		sanitize_ascii(msg.data, ret);
-
 		if (ret < 45)
 			break;
 
-		fprintf(outf, "%s\n", msg.data);
+		if ( opts.output_format == CSV ) {
+			char *tok = (char *) &msg.data;
+			              token(&tok, '|');  // unknown
+			char *seq =   token(&tok, '|');
+			char *type =  token(&tok, '|');
+			char *val =   token(&tok, '|');
+			char *unit =  token(&tok, '|');
+			              token(&tok, '|');  // unknown
+			char *notes = token(&tok, '|');
+			              token(&tok, '|');  // unknown
+			char *time =  token(&tok, '\r');
+			unit[strlen(unit)-2] = 0;
+			fprintf(outf, "%s,%.4s-%.2s-%.2s %.2s:%.2s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+				seq, &time[0], &time[4], &time[6], &time[8], &time[10], &type[3], val, unit,
+				strchr(notes, 'B') ? "X" : "", strchr(notes, 'A') ? "X" : "",
+				strchr(notes, 'S') ? "X" : "", strchr(notes, 'I') ? "X" : "",
+				strchr(notes, 'D') ? "X" : "", strchr(notes, 'X') ? "X" : "",
+				strchr(notes, 'C') ? "X" : ""
+			);
+		} else
+		if ( opts.output_format == CLEAN ) {
+			sanitize_ascii(msg.data, ret);
+			fprintf(outf, "%s\n", msg.data);
+		} else
+		if ( opts.output_format == RAW ) {
+			fprintf(outf, "%s", msg.data);
+		}
 
 		entries++;
 		if (outf != stdout) {
@@ -86,4 +114,14 @@ int main(int argc, char *argv[])
 	trace(0, "\n");
 
 	return 0;
+}
+
+char *token(char **str, char sep)
+{
+  char *start = *str;
+  char *cur;
+  for ( cur = start; *cur && (*cur != sep); ++cur ) ;
+  *cur = 0;
+  *str = cur+1;
+  return start;
 }

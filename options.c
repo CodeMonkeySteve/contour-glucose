@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "options.h"
+#include "utils.h"
 
 int read_args(int argc, char *argv[], struct user_options *opts)
 {
@@ -30,8 +31,9 @@ int read_args(int argc, char *argv[], struct user_options *opts)
                 { .val = 'd', .name = "device", .has_arg = 1, },
                 { .val = 'v', .name = "verbose", .has_arg = 2 },
 		{ .val = 'o', .name = "output", .has_arg = 1 },
+                { .val = 'f', .name = "format", .has_arg = 1, },
         };
-        char short_options[] = "d:v:o:";
+        char short_options[] = "d:v:o:f:";
 
 	memset(opts, 0, sizeof(*opts));
 
@@ -53,6 +55,20 @@ int read_args(int argc, char *argv[], struct user_options *opts)
 				opts->trace_level++;
 		case 'o':
 			opts->output_path = optarg;
+			break;
+		case 'f':
+			if ( strcmp(optarg, "raw") == 0 ) {
+				opts->output_format = RAW;
+			} else
+			if ( strcmp(optarg, "clean") == 0 ) {
+				opts->output_format = CLEAN;
+			} else
+			if ( strcmp(optarg, "csv") == 0 ) {
+				opts->output_format = CSV;
+			} else {
+				trace(0, "Unknown format type \"%s\", must be one of \"raw\", \"clean\", or \"csv\"\n", optarg );
+				return -1;
+			}
 			break;
                 case '?':
 			return -1;

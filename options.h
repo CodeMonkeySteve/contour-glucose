@@ -18,11 +18,16 @@
  */
 
 #ifndef _OPTIONS_H_
-#define _OPTINOS_H_
+#define _OPTIONS_H_
 
 struct user_options {
 	char *usbdev;
 	char *output_path;
+	enum {
+		RAW = 0,
+		CLEAN = 1,
+		CSV = 2,
+	} output_format;
 	int trace_level;
 };
 

@@ -25,7 +25,7 @@
 
 struct msg {
 	int direction;
-	unsigned char data[64];
+	unsigned char data[64+1];
 };
 
 enum direction {
