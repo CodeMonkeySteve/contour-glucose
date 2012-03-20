@@ -33,8 +33,8 @@ extern int trace_level;
 
 #define trace(level, arg...)			\
 	do {					\
-		if (level <= trace_level)	\
-			printf(arg);		\
+		if (level <= trace_level) 	\
+			fprintf(stderr, arg);	\
 	} while (0)
 
 int datalen(const unsigned char *data);
