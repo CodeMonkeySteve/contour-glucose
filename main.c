@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
 	trace(0, "Done! Reading data\n");
 	if ( opts.output_format == CSV )
-		fprintf(outf, "#,Time,Type,Value,Unit,Before meal,After meal,Stress,Sick,Dont feel right,Activity,Control test\n");
+		fprintf(outf, "#,Time,Type,Value,Unit,\"Before meal\",\"After meal\",Stress,Sick,\"Dont feel right\",Activity,\"Control test\"\n");
 
 	while (1) {
 		ret = contour_read_entry(fd, usage_code, &msg);
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 			              token(&tok, '|');  // unknown
 			char *time =  token(&tok, '\r');
 			unit[strlen(unit)-2] = 0;
-			fprintf(outf, "%s,%.4s-%.2s-%.2s %.2s:%.2s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+			fprintf(outf, "%s,\"%.4s-%.2s-%.2s %.2s:%.2s\",\"%s\",\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s\n",
 				seq, &time[0], &time[4], &time[6], &time[8], &time[10], &type[3], val, unit,
 				strchr(notes, 'B') ? "X" : "", strchr(notes, 'A') ? "X" : "",
 				strchr(notes, 'S') ? "X" : "", strchr(notes, 'I') ? "X" : "",
