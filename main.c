@@ -37,12 +37,13 @@ char *token(char **str, char sep);
 int main(int argc, char *argv[])
 {
 	FILE *outf;
-	struct user_options opts = { .output_format = CLEAN };
+	struct user_options opts = { .usbdev = NULL, .output_path = NULL, .output_format = CLEAN, .trace_level = 0 };
 	struct msg msg;
 	int fd, usage_code, ret, error;
 	int entries = 0;
 
-	read_args(argc, argv, &opts);
+	if ( read_args(argc, argv, &opts) )
+		return -1;
 
 	trace_level = opts.trace_level;
 
