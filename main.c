@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
 		fd = hiddev_open(opts.usbdev, &usage_code);
 	if (fd < 0)
 		return 1;
-	trace(0, "Initializing\n");
+	trace(0, "Initializing ...\n");
 	contour_initialize(fd, usage_code);
 
-	trace(0, "Done! Reading data\n");
+	trace(0, "Reading data ...\n");
 	if ( opts.output_format == CSV )
 		fprintf(outf, "#,Time,Type,Value,Unit,\"Before meal\",\"After meal\",Stress,Sick,\"Dont feel right\",Activity,\"Control test\"\n");
 
@@ -107,12 +107,14 @@ int main(int argc, char *argv[])
 		}
 
 		entries++;
-		if (outf != stdout) {
-			trace(0, "\r%d", entries);
+		fflush(outf);
+
+		if ((outf != stdout) || !isatty(fileno(stdout))) {
+			trace(0, "\r%d entries", entries);
 			fflush(stdout);
 		}
 	}
-	trace(0, "\n");
+	trace(0, "\nDone.\n");
 
 	return 0;
 }
