@@ -22,7 +22,7 @@ endif
 all: glucose
 
 glucose: $(GLUCOSE_OBJS)
-	$(QUIET_LINK)$(CC) -lusb $(CFLAGS) -o $@ $^
+	$(QUIET_LINK)$(CC) -lusb-1.0 $(CFLAGS) -o $@ $^
 
 clean:
 	rm -vf glucose *~ *.o .*.d
